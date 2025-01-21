@@ -1,63 +1,74 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-package com.mycompany.Sistema_Solar;
 
+package com.mycompany.Sistema_Solar;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Random;
 
 /**
- *
- * @author Davil
+ * Classe que representa a interface gráfica do sistema solar. 
+ * Ela gerencia a interação do usuário e a atualização automática das temperaturas do coletor solar.
+ * Utiliza um gráfico para exibir a evolução das temperaturas ao longo do tempo.
  */
 public class Sistema_Solar_Interface extends javax.swing.JFrame {
 
     private Timer timer;
     double temperatura_ambiente = TemperaturaAmbiente.chamarTemperaturaAmbiente();
     double vazao = 0.05; // Vazão do fluido
-    // Objeto para manipular o gráfico
-    double t = 0;
+    double t = 0; // Contador de tempo para o gráfico
     private Coletor_solar coletor;
-    // Cria uma instância da classe GraficoTemperatura
     GraficoTemperatura grafico = new GraficoTemperatura();
     double temperatura_entrada = temperatura_ambiente;
 
-    // Cria e exibe o gráfico
+    /**
+     * Construtor da interface do sistema solar. 
+     * Inicializa os componentes gráficos e o gráfico de temperatura.
+     * Também configura o slider de hora do dia para atualizar a hora exibida na interface.
+     */
     public Sistema_Solar_Interface() {
         initComponents();
 
+        // Cria e exibe o gráfico de temperatura
         grafico.criarGrafico();
 
+        // Adiciona um ouvinte para o slider de hora do dia
         hora_dia.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                // Atualiza o valor na JLabel sempre que o slider mudar
+                // Atualiza o valor exibido quando o slider mudar
                 int hora = hora_dia.getValue();
                 valor_hora_dia.setText(String.valueOf(hora));
             }
         });
+
+        // Inicia a atualização automática das temperaturas
         iniciarAtualizacaoAutomatica();
+        // Atualiza as temperaturas ao iniciar
         atualizarTemperaturaSaida();
     }
 
+    /**
+     * Inicia a atualização automática das temperaturas do coletor solar a cada intervalo de tempo.
+     * Utiliza um Timer para agendar a execução periódica da atualização.
+     */
     private void iniciarAtualizacaoAutomatica() {
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // Atualiza o gráfico automaticamente
+                // Atualiza a temperatura de saída automaticamente
                 atualizarTemperaturaSaida();
             }
-        }, 0, 1500); // Intervalo de 1000 ms = 1 segundo
+        }, 0, 1500); // Atualização a cada 1500 ms (1.5 segundos)
     }
 
-    // Método para parar o timer caso necessário
+    /**
+     * Para a atualização automática das temperaturas, cancelando o timer.
+     */
     private void pararAtualizacaoAutomatica() {
         if (timer != null) {
             timer.cancel();
         }
     }
+
 
     // M
     /**
@@ -280,28 +291,46 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void atualizarTemperaturaSaida() {
-        if (coletor == null) {
-            coletor = new Coletor_solar(0, 0, 0);
-        }
-        Coletor_solar novoColetor = new Coletor_solar(coletor.getIrradiacao(
-                hora_dia.getValue()),
-                temperatura_ambiente,
-                vazao
-        );
-        double tempSaida = novoColetor.calcularTemperaturaSaida();
-        // Adicionando ruído ao valor de temperatura_entrada
-        Random random = new Random();
-        double ruido = (random.nextDouble() * 1.0) - 0.5; // Ruído entre -0.5 e 0.5
-        temperatura_entrada = coletor.calcularTemperaturaEntrada(tempSaida) + ruido;
-
-        label_vazao.setText(String.format("%.3f L/s", vazao));
-        System.out.println("tmepSaida"+ tempSaida);
-        t++;
-        grafico.atualizarGrafico(tempSaida, temperatura_entrada, temperatura_ambiente);
+/**
+ * Atualiza a temperatura de saída do coletor solar com base nos parâmetros atuais.
+ * Inclui o cálculo da temperatura de entrada com um ruído aleatório para simulação.
+ * Atualiza também o gráfico com os novos valores de temperatura.
+ */
+private void atualizarTemperaturaSaida() {
+    if (coletor == null) {
+        coletor = new Coletor_solar(0, 0, 0);
     }
+    // Cria uma nova instância do coletor solar com os parâmetros atualizados
+    Coletor_solar novoColetor = new Coletor_solar(coletor.getIrradiacao(
+            hora_dia.getValue()),
+            temperatura_ambiente,
+            vazao
+    );
 
+    // Calcula a temperatura de saída com o coletor atualizado
+    double tempSaida = novoColetor.calcularTemperaturaSaida();
 
+    // Adiciona ruído aleatório à temperatura de entrada
+    Random random = new Random();
+    double ruido = (random.nextDouble() * 1.0) - 0.5; // Ruído entre -0.5 e 0.5
+    temperatura_entrada = coletor.calcularTemperaturaEntrada(tempSaida) + ruido;
+
+    // Atualiza o texto do rótulo da vazão
+    label_vazao.setText(String.format("%.3f L/s", vazao));
+    System.out.println("tempSaida: " + tempSaida);
+
+    // Incrementa o contador de tempo e atualiza o gráfico
+    t++;
+    grafico.atualizarGrafico(tempSaida, temperatura_entrada, temperatura_ambiente);
+}
+
+/**
+ * Método acionado ao clicar no botão para diminuir a vazão.
+ * Reduz o valor da vazão em 0.001, garantindo que ela não fique abaixo de 0.001.
+ * Atualiza a temperatura de saída após a mudança.
+ * 
+ * @param evt Evento gerado ao clicar no botão.
+ */
     private void button_diminuir_vazaoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_diminuir_vazaoinActionPerformed
         vazao = vazao - 0.001;
         if (vazao <= 0) {
@@ -310,7 +339,13 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
 
         atualizarTemperaturaSaida();
     }//GEN-LAST:event_button_diminuir_vazaoinActionPerformed
-
+/**
+ * Método acionado ao clicar no botão para aumentar a vazão.
+ * Incrementa o valor da vazão em 0.01, garantindo que ela não fique abaixo de 0.
+ * Atualiza a temperatura de saída após a mudança.
+ * 
+ * @param evt Evento gerado ao clicar no botão.
+ */
     private void button_aumentar_vazaoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_aumentar_vazaoinActionPerformed
         // TODO add your handling code here:
         vazao = vazao + 0.01;
@@ -319,13 +354,25 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         }
         atualizarTemperaturaSaida();
     }//GEN-LAST:event_button_aumentar_vazaoinActionPerformed
-
+/**
+ * Método acionado ao clicar no botão para diminuir a temperatura ambiente.
+ * Reduz o valor da temperatura ambiente em 1 grau Celsius.
+ * Atualiza a temperatura de saída após a mudança.
+ * 
+ * @param evt Evento gerado ao clicar no botão.
+ */
     private void button_diminuir_temperatura_ambienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_diminuir_temperatura_ambienteActionPerformed
         // TODO add your handling code here:
         temperatura_ambiente = temperatura_ambiente - 1;
         atualizarTemperaturaSaida();
     }//GEN-LAST:event_button_diminuir_temperatura_ambienteActionPerformed
-
+/**
+ * Método acionado ao clicar no botão para aumentar a temperatura ambiente.
+ * Incrementa o valor da temperatura ambiente em 1 grau Celsius.
+ * Atualiza a temperatura de saída após a mudança.
+ * 
+ * @param evt Evento gerado ao clicar no botão.
+ */
     private void button_aumentar_temperatura_ambienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_aumentar_temperatura_ambienteActionPerformed
         // TODO add your handling code here:
         temperatura_ambiente = temperatura_ambiente + 1;

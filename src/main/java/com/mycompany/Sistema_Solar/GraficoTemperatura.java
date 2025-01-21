@@ -1,3 +1,8 @@
+/**
+ * Classe responsável por criar, exibir e atualizar um gráfico de evolução das temperaturas
+ * utilizando a biblioteca JFreeChart. O gráfico apresenta as temperaturas de saída,
+ * entrada e ambiente ao longo do tempo.
+ */
 package com.mycompany.Sistema_Solar;
 
 import org.jfree.chart.ChartFactory;
@@ -9,7 +14,6 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Date;
 import java.util.Scanner;
 import org.jfree.data.time.Minute;
 
@@ -20,6 +24,10 @@ public class GraficoTemperatura {
     private JFreeChart chart; // Objeto do gráfico
     private ChartPanel chartPanel; // Painel do gráfico
 
+    /**
+     * Construtor da classe GraficoTemperatura.
+     * Inicializa as séries de dados, o conjunto de dados e configura o gráfico.
+     */
     public GraficoTemperatura() {
         // Inicializa o conjunto de dados
         dataset = new TimeSeriesCollection();
@@ -43,7 +51,10 @@ public class GraficoTemperatura {
         );
     }
 
-    // Método para criar e exibir o gráfico
+    /**
+     * Método para criar e exibir o gráfico em uma nova janela.
+     * Configura o painel do gráfico e o exibe em um JFrame.
+     */
     public void criarGrafico() {
         // Cria o painel do gráfico
         chartPanel = new ChartPanel(chart);
@@ -60,26 +71,37 @@ public class GraficoTemperatura {
         chartFrame.setVisible(true);
     }
 
-private int tempoSegundos = 0;
+    private int tempoSegundos = 0;
 
-// Método para atualizar o gráfico
-public void atualizarGrafico(double tempSaida, double tempEntrada, double tempAmbiente) {
-    // Cria um segundo artificialmente baseado no contador
-    Second segundo = new Second(tempoSegundos, new Minute()); // A cada atualização aumenta-se o contador
+    /**
+     * Atualiza o gráfico com novos valores de temperatura.
+     * 
+     * @param tempSaida    Temperatura de saída (°C).
+     * @param tempEntrada  Temperatura de entrada (°C).
+     * @param tempAmbiente Temperatura ambiente (°C).
+     */
+    public void atualizarGrafico(double tempSaida, double tempEntrada, double tempAmbiente) {
+        // Cria um segundo artificialmente baseado no contador
+        Second segundo = new Second(tempoSegundos, new Minute()); // A cada atualização aumenta-se o contador
 
-    // Adiciona os novos valores às séries com o "tempo" artificial
-    serie1.addOrUpdate(segundo, tempSaida);
-    serie2.addOrUpdate(segundo, tempEntrada);
-    serie3.addOrUpdate(segundo, tempAmbiente);
+        // Adiciona os novos valores às séries com o "tempo" artificial
+        serie1.addOrUpdate(segundo, tempSaida);
+        serie2.addOrUpdate(segundo, tempEntrada);
+        serie3.addOrUpdate(segundo, tempAmbiente);
 
-    // Incrementa o contador de segundos
-    tempoSegundos++;
+        // Incrementa o contador de segundos
+        tempoSegundos++;
 
-    // Atualiza o painel do gráfico
-    chartPanel.repaint();
-}
+        // Atualiza o painel do gráfico
+        chartPanel.repaint();
+    }
 
-    // Método para ler as temperaturas do terminal
+    /**
+     * Lê um valor de temperatura do terminal.
+     * 
+     * @param mensagem Mensagem a ser exibida ao solicitar a entrada do usuário.
+     * @return O valor de temperatura informado pelo usuário.
+     */
     public double lerTemperatura(String mensagem) {
         Scanner scanner = new Scanner(System.in);
         System.out.print(mensagem);
@@ -92,6 +114,5 @@ public void atualizarGrafico(double tempSaida, double tempEntrada, double tempAm
             }
         }
     }
-
 
 }

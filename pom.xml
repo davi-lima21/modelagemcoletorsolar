@@ -5,11 +5,13 @@
     <artifactId>modelo_coletor_solar</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>23</maven.compiler.release>
         <exec.mainClass>com.mycompany.modelo_coletor_solar.Sistema_Solar</exec.mainClass>
     </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.jfree</groupId>
@@ -21,7 +23,27 @@
             <artifactId>json</artifactId>
             <version>20210307</version>
         </dependency>
-
-    
     </dependencies>
+    
+    <!-- Correção: a tag <build> deve estar fora de <dependencies> -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>javadoc</goal> <!-- Alterado de "generate" para "javadoc" -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/meu-destino</outputDirectory> <!-- Novo diretório de saída -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

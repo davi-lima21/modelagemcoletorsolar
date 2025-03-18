@@ -1,38 +1,50 @@
 package com.mycompany.Sistema_Solar;
 
-import java.util.LinkedList;
-import java.util.Queue;
+
 
 /**
  * A classe {@code Coletor_solar} representa o modelo de um coletor solar
  * térmico. Ela realiza cálculos relacionados à eficiência do coletor, ganho
  * energético, perda de calor e temperaturas de entrada e saída da água.
- * 
+ *
  * @author [Seu Nome]
  */
 public class Coletor_solar {
 
-    /** Irradiação solar incidente (W/m²). */
+
+    /**
+     * Irradiação solar incidente (W/m²).
+     */
     double irradiacao_solar;
 
-    /** Temperatura ambiente (°C). */
+    /**
+     * Temperatura ambiente (°C).
+     */
     private final double TEMPERATURA_AMBIENTE;
 
-    /** Temperatura de entrada da água no coletor (°C). */
+    /**
+     * Temperatura de entrada da água no coletor (°C).
+     */
     private double TEMPERATURA_ENTRADA = TemperaturaAmbiente.chamarTemperaturaAmbiente() - 5;
 
-    /** Vazão da água através do coletor (kg/s). */
+    /**
+     * Vazão da água através do coletor (kg/s).
+     */
     private final double vazao;
 
-    /** Fator de ajuste para a temperatura de entrada. */
+    /**
+     * Fator de ajuste para a temperatura de entrada.
+     */
     double ALPHA = 0.5;
 
-    /** Indica se é a primeira execução do sistema. */
+    /**
+     * Indica se é a primeira execução do sistema.
+     */
     private boolean primeiraExecucao = true;
 
     /**
      * Construtor para inicializar os parâmetros do coletor solar.
-     * 
+     *
      * @param irradiacao_solar Irradiação solar inicial (W/m²).
      * @param temperaturaAmbiente Temperatura ambiente inicial (°C).
      * @param vazao Vazão da água através do coletor (kg/s).
@@ -45,7 +57,7 @@ public class Coletor_solar {
 
     /**
      * Calcula e retorna a irradiância solar com base no horário do dia.
-     * 
+     *
      * @param horario Horário do dia (formato 24h).
      * @return A irradiância solar correspondente ao horário (W/m²).
      */
@@ -68,7 +80,7 @@ public class Coletor_solar {
 
     /**
      * Calcula a temperatura de entrada da água no coletor.
-     * 
+     *
      * @param tempSaida Temperatura da água na saída do coletor (°C).
      * @return A nova temperatura de entrada da água (°C).
      */
@@ -79,7 +91,7 @@ public class Coletor_solar {
     /**
      * Calcula a temperatura de saída da água no coletor com base nos parâmetros
      * atuais, como eficiência, perdas e ganho energético.
-     * 
+     *
      * @return A temperatura de saída da água (°C).
      */
     public double calcularTemperaturaSaida() {

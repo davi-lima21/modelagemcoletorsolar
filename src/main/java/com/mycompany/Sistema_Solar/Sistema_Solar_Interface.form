@@ -69,9 +69,6 @@
         <Property name="alignmentX" type="float" value="0.0"/>
         <Property name="alignmentY" type="float" value="0.0"/>
         <Property name="autoscrolls" type="boolean" value="true"/>
-        <Property name="rowHeaderView" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="default"/>
-        </Property>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
@@ -536,7 +533,7 @@
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="14" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Vaz&#xe3;o de Entrada (m^3/s)"/>
+                <Property name="text" type="java.lang.String" value="Vaz&#xe3;o de Entrada (L/min)"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="input_vazao">
@@ -629,6 +626,7 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="botao_tempo_real" min="-2" pref="101" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
                                   <Component id="botao_definir_tempo" min="-2" max="-2" attributes="0"/>

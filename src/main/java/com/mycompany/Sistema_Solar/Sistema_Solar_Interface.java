@@ -12,6 +12,7 @@ import java.util.TimerTask;
  */
 public class Sistema_Solar_Interface extends javax.swing.JFrame {
 
+    private boolean atualizacaoAutomaticaAtiva = false; // Variável de controle
     private Timer timer;
     double temperatura_ambiente = TemperaturaAmbiente.chamarTemperaturaAmbiente();
     double vazao = 0.048; // Vazão do fluido
@@ -100,11 +101,25 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
 // painel_de_exibicao.revalidate();
 // painel_de_exibicao.repaint();
     }
-    
-        private void iniciarSimulacaoTempoDefinido(){
-            pararAtualizacaoAutomatica();
-            
+
+    private void iniciarSimulacaoTempoDefinido() {
+        pararAtualizacaoAutomatica();
+        //chamar Definir_Dados_Interface.java
+        // Passa a referência da janela principal (this) e define como modal (true)
+        Definir_Dados_Interface definirDados = new Definir_Dados_Interface(this, true);
+        definirDados.setVisible(true);
+
+        Double horaInicial = definirDados.getHoraInicial();
+        Double horaFinal = definirDados.getHoraFinal();
+
+        if (horaInicial != null && horaFinal != null) {
+            System.out.println("Hora Inicial: " + horaInicial);
+            System.out.println("Hora Final: " + horaFinal);
+        } else {
+            System.out.println("Erro: Hora inicial ou final inválida.");
         }
+
+    }
 
     /**
      * Inicia a atualização automática das temperaturas do coletor solar a cada
@@ -112,6 +127,10 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
      * atualização.
      */
     private void iniciarAtualizacaoAutomatica() {
+
+        if (atualizacaoAutomaticaAtiva) {
+            return; // Se já estiver rodando, não cria outro timer
+        }
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -120,9 +139,8 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                 atualizarTemperaturaSaida();
             }
         }, 0, 1500); // Atualização a cada 1500 ms (1.5 segundos)
+        atualizacaoAutomaticaAtiva = true;
     }
-    
-
 
     /**
      * Para a atualização automática das temperaturas, cancelando o timer.
@@ -130,7 +148,9 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private void pararAtualizacaoAutomatica() {
         if (timer != null) {
             timer.cancel();
+            atualizacaoAutomaticaAtiva = false;
         }
+
     }
 
     // M
@@ -403,7 +423,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         });
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel5.setText("Vazão de Entrada (m^3/s)");
+        jLabel5.setText("Vazão de Entrada (L/min)");
 
         input_vazao.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         input_vazao.setText("0");
@@ -486,6 +506,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
                         .addComponent(botao_tempo_real, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(botao_definir_tempo))
@@ -789,7 +810,13 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
 
     private void botao_tipo_simulacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_tipo_simulacaoActionPerformed
         // TODO add your handling code here:
-        pararAtualizacaoAutomatica();
+        if (botao_definir_tempo.isSelected()) {//button group tipo_simulacao estiver com botao_definir tempo selecionado
+            iniciarSimulacaoTempoDefinido();
+        } else {
+            //refresh na aplicação
+            iniciarAtualizacaoAutomatica();
+        }
+
     }//GEN-LAST:event_botao_tipo_simulacaoActionPerformed
 
     /**

@@ -18,7 +18,7 @@ public class TemperaturaAmbiente {
      * @return A temperatura atual em graus Celsius. Retorna 0 em caso de erro.
      */
     public static double chamarTemperaturaAmbiente() {
-        String apiKey = "013dd2d0c1a23017ba41ad54b7585424"; // Chave da API do OpenWeatherMap
+        String apiKey = "9e4b6edd20941fa382ac6d9c1fc40205"; // Chave da API do OpenWeatherMap
         String cidade = "Florianopolis,br"; // Cidade para a qual obter a temperatura (personalizável)
 
         try {

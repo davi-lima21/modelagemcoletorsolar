@@ -63,7 +63,7 @@ public class GraficoTemperatura {
         dataset.addSeries(serieIrradiacao);
 
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
-                "Irradiação Solar", "Tempo (s)", "Wh/m^2", dataset,
+                "Irradiancia Solar", "Tempo (s)", "Wh/m^2", dataset,
                 true, true, false
         );
 

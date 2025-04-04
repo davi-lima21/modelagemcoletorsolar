@@ -3,6 +3,7 @@ package com.mycompany.Sistema_Solar;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.JPanel;
 
 /**
  * Classe que representa a interface gráfica do sistema solar. Ela gerencia a
@@ -20,6 +21,13 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private Coletor_solar coletor;
     private GraficoTemperatura grafico;
     double temperatura_entrada = temperatura_ambiente;
+    private double tempoAtual;
+
+    //variaveis globais configuracao dos graficos
+    private JPanel painelGraficoSaida;
+    private JPanel painelGraficoEntrada;
+    private JPanel painelGraficoAmbiente;
+    private JPanel painelGraficoIrradiacao;
 
     /**
      * Construtor da interface do sistema solar. Inicializa os componentes
@@ -53,7 +61,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         // Inicia a atualização automática das temperaturas
         iniciarAtualizacaoAutomatica();
         // Atualiza as temperaturas ao iniciar
-        atualizarTemperaturaSaida();
+        atualizarTemperaturaSaida(hora_dia.getValue());
     }
 
     /**
@@ -64,16 +72,17 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         value_vazao.setText(Double.toString(vazao));
         value_temp_saida.setText(Double.toString(tempSaida));
         value_temp_ambiente.setText(Double.toString(temperatura_ambiente));
+        irradiacao = Math.round(irradiacao * 100.0) / 100;
         value_irradiacao.setText(Double.toString(irradiacao));
         value_temp_entrada.setText(Double.toString(temperatura_entrada));
     }
 
     private void configurarGraficosTempoReal() {
 // Criar os painéis com gráficos (a partir do método criarGraficoSaidaPanel, etc.)
-        javax.swing.JPanel painelGraficoSaida = grafico.criarGraficoSaidaPanel();
-        javax.swing.JPanel painelGraficoEntrada = grafico.criarGraficoEntradaPanel();
-        javax.swing.JPanel painelGraficoAmbiente = grafico.criarGraficoAmbientePanel();
-        javax.swing.JPanel painelGraficoIrradiacao = grafico.criarGraficoIrradiacaoPanel();
+        painelGraficoSaida = grafico.criarGraficoSaidaPanel();
+        painelGraficoEntrada = grafico.criarGraficoEntradaPanel();
+        painelGraficoAmbiente = grafico.criarGraficoAmbientePanel();
+        painelGraficoIrradiacao = grafico.criarGraficoIrradiacaoPanel();
 
 // Ajustar o tamanho preferido para os painéis de gráfico
         painelGraficoSaida.setPreferredSize(new java.awt.Dimension(411, 300));
@@ -103,22 +112,42 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     }
 
     private void iniciarSimulacaoTempoDefinido() {
-        pararAtualizacaoAutomatica();
-        //chamar Definir_Dados_Interface.java
-        // Passa a referência da janela principal (this) e define como modal (true)
+        pararAtualizacaoAutomatica(); // Para o tempo real
+        limparGraficos();
+
         Definir_Dados_Interface definirDados = new Definir_Dados_Interface(this, true);
         definirDados.setVisible(true);
 
         Double horaInicial = definirDados.getHoraInicial();
         Double horaFinal = definirDados.getHoraFinal();
 
-        if (horaInicial != null && horaFinal != null) {
-            System.out.println("Hora Inicial: " + horaInicial);
-            System.out.println("Hora Final: " + horaFinal);
-        } else {
+        if (horaInicial == null || horaFinal == null || horaInicial >= horaFinal) {
             System.out.println("Erro: Hora inicial ou final inválida.");
+            return;
         }
 
+        double intervaloMinutos = 10; // Passo da simulação (ex: 10 min)
+        tempoAtual = horaInicial; // Usando um array mutável
+
+// Criando uma thread para rodar a simulação sem travar a interface
+        new Thread(() -> {
+            while (tempoAtual <= horaFinal) {
+                System.out.println("Simulando para horário: " + tempoAtual);
+
+                // Atualiza a interface com os novos valores
+                atualizarTemperaturaSaida(tempoAtual);
+
+                // Espera um pouco antes de passar para o próximo intervalo
+                try {
+                    Thread.sleep(500); // Pausa curta para a interface atualizar
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Avança o tempo simulado
+                tempoAtual += intervaloMinutos / 60.0;
+            }
+        }).start(); // Inicia a Thread
     }
 
     /**
@@ -136,7 +165,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
             @Override
             public void run() {
                 // Atualiza a temperatura de saída automaticamente
-                atualizarTemperaturaSaida();
+                atualizarTemperaturaSaida(hora_dia.getValue());
             }
         }, 0, 1500); // Atualização a cada 1500 ms (1.5 segundos)
         atualizacaoAutomaticaAtiva = true;
@@ -150,6 +179,11 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
             timer.cancel();
             atualizacaoAutomaticaAtiva = false;
         }
+
+    }
+
+    private void limparGraficos() {
+        grafico.limparDadosGraficos();
 
     }
 
@@ -169,6 +203,8 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         jEditorPane1 = new javax.swing.JEditorPane();
         tipo_dia = new javax.swing.ButtonGroup();
         tipo_simulacao = new javax.swing.ButtonGroup();
+        jLabel13 = new javax.swing.JLabel();
+        input_vazao2 = new javax.swing.JTextField();
         jScrollPaneMain = new javax.swing.JScrollPane();
         container_filho = new javax.swing.JPanel();
         container_tabela = new javax.swing.JPanel();
@@ -206,8 +242,27 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         tipo_dia_sol = new javax.swing.JRadioButton();
         tipo_dia_nublado = new javax.swing.JRadioButton();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        input_vazao1 = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
+        input_vazao3 = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        input_vazao4 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
 
         jScrollPane1.setViewportView(jEditorPane1);
+
+        jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel13.setText("Vazão de Entrada (L/min)");
+
+        input_vazao2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        input_vazao2.setText("0");
+        input_vazao2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                input_vazao2ActionPerformed(evt);
+            }
+        });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -518,7 +573,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(88, 88, 88)
                 .addComponent(botao_tipo_simulacao, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -573,6 +628,87 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Dados do Coletor"));
+
+        jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel12.setText("Área (m)");
+
+        input_vazao1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        input_vazao1.setText("12");
+        input_vazao1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                input_vazao1ActionPerformed(evt);
+            }
+        });
+
+        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel15.setText("Constante a");
+
+        input_vazao3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        input_vazao3.setText("0");
+        input_vazao3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                input_vazao3ActionPerformed(evt);
+            }
+        });
+
+        jLabel16.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel16.setText("Constante b");
+
+        input_vazao4.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        input_vazao4.setText("0");
+        input_vazao4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                input_vazao4ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("CONFIRMAR");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(input_vazao1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(input_vazao3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(input_vazao4, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(input_vazao1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(input_vazao3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel16)
+                    .addComponent(input_vazao4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jButton1)
+                .addContainerGap(10, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout container_filhoLayout = new javax.swing.GroupLayout(container_filho);
         container_filho.setLayout(container_filhoLayout);
         container_filhoLayout.setHorizontalGroup(
@@ -585,6 +721,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                     .addGroup(container_filhoLayout.createSequentialGroup()
                         .addGap(36, 36, 36)
                         .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(container_filhoLayout.createSequentialGroup()
                                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -615,16 +752,10 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         container_filhoLayout.setVerticalGroup(
             container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createSequentialGroup()
-                .addGap(0, 30, Short.MAX_VALUE)
+                .addGap(0, 55, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(30, 30, 30)
                 .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(container_filhoLayout.createSequentialGroup()
-                        .addComponent(temp_ambiente_entrada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(temp_saida_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(container_filhoLayout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -652,8 +783,16 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(container_definirhora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(container_tabela, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(256, Short.MAX_VALUE))
+                        .addComponent(container_tabela, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(container_filhoLayout.createSequentialGroup()
+                        .addComponent(temp_ambiente_entrada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(temp_saida_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(191, Short.MAX_VALUE))
         );
 
         jScrollPaneMain.setViewportView(container_filho);
@@ -662,11 +801,13 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPaneMain, javax.swing.GroupLayout.DEFAULT_SIZE, 1159, Short.MAX_VALUE)
+            .addComponent(jScrollPaneMain, javax.swing.GroupLayout.DEFAULT_SIZE, 991, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPaneMain, javax.swing.GroupLayout.DEFAULT_SIZE, 897, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPaneMain, javax.swing.GroupLayout.PREFERRED_SIZE, 1108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -678,20 +819,26 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
      * para simulação. Atualiza também o gráfico com os novos valores de
      * temperatura.
      */
-    private void atualizarTemperaturaSaida() {
+    private void atualizarTemperaturaSaida(double hora) {
         if (coletor == null) {
             coletor = new Coletor_solar(0, 0, 0);
         }
-        // Cria uma nova instância do coletor solar com os parâmetros atualizados
+        // Cria uma nova instância do coletor solar com os parâmetros atualizados  hora_dia.getValue()
         Coletor_solar novoColetor = new Coletor_solar(coletor.getIrradiacao(
-                hora_dia.getValue()),
+                hora),
                 temperatura_ambiente,
                 vazao
         );
 
         // Calcula a temperatura de saída com o coletor atualizado
         double tempSaida = novoColetor.calcularTemperaturaSaida();
-        double irradiacao = coletor.getIrradiacao(hora_dia.getValue());
+        double irradiacao = 0;
+        if (!atualizacaoAutomaticaAtiva) {
+            irradiacao = coletor.getIrradiacao(tempoAtual);
+        } else {
+            irradiacao = coletor.getIrradiacao(hora_dia.getValue());
+        }
+
         // Adiciona ruído aleatório à temperatura de entrada
         Random random = new Random();
         double ruido = (random.nextDouble() * 1.0) - 0.5; // Ruído entre -0.5 e 0.5
@@ -713,6 +860,8 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
 
     }
 
+    //private double retornaTempoIrradiacao(boolean tempo_e){;
+    //}
     /**
      * Método acionado ao clicar no botão para diminuir a vazão. Reduz o valor
      * da vazão em 0.001, garantindo que ela não fique abaixo de 0.001. Atualiza
@@ -728,7 +877,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         vazao = Math.round(vazao * 1000.0) / 1000.0;
 
         input_vazao.setText(Double.toString(vazao));
-        atualizarTemperaturaSaida();
+        atualizarTemperaturaSaida(hora_dia.getValue());
     }//GEN-LAST:event_button_diminuir_vazaoinActionPerformed
     /**
      * Método acionado ao clicar no botão para aumentar a vazão. Incrementa o
@@ -746,7 +895,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         vazao = Math.round(vazao * 1000.0) / 1000.0;
 
         input_vazao.setText(Double.toString(vazao));
-        atualizarTemperaturaSaida();
+        atualizarTemperaturaSaida(hora_dia.getValue());
     }//GEN-LAST:event_button_aumentar_vazaoinActionPerformed
     /**
      * Método acionado ao clicar no botão para diminuir a temperatura ambiente.
@@ -759,7 +908,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         // TODO add your handling code here:
         temperatura_ambiente = temperatura_ambiente - 1;
         input_temp_ambiente.setText(Double.toString(temperatura_ambiente));
-        atualizarTemperaturaSaida();
+        atualizarTemperaturaSaida(hora_dia.getValue());
     }//GEN-LAST:event_button_diminuir_temperatura_ambienteActionPerformed
     /**
      * Método acionado ao clicar no botão para aumentar a temperatura ambiente.
@@ -772,7 +921,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         // TODO add your handling code here:
         temperatura_ambiente = temperatura_ambiente + 1;
         input_temp_ambiente.setText(Double.toString(temperatura_ambiente));
-        atualizarTemperaturaSaida();
+        atualizarTemperaturaSaida(hora_dia.getValue());
     }//GEN-LAST:event_button_aumentar_temperatura_ambienteActionPerformed
 
     private void input_vazaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazaoActionPerformed
@@ -818,6 +967,22 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_botao_tipo_simulacaoActionPerformed
+
+    private void input_vazao1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_input_vazao1ActionPerformed
+
+    private void input_vazao2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_input_vazao2ActionPerformed
+
+    private void input_vazao3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_input_vazao3ActionPerformed
+
+    private void input_vazao4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_input_vazao4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -869,10 +1034,19 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private javax.swing.JSlider hora_dia;
     private javax.swing.JTextField input_temp_ambiente;
     private javax.swing.JTextField input_vazao;
+    private javax.swing.JTextField input_vazao1;
+    private javax.swing.JTextField input_vazao2;
+    private javax.swing.JTextField input_vazao3;
+    private javax.swing.JTextField input_vazao4;
+    private javax.swing.JButton jButton1;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -883,6 +1057,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPaneMain;
     private javax.swing.JPanel temp_ambiente_entrada;

@@ -39,6 +39,21 @@ public class GraficoTemperatura {
         panelIrradiacao = new ChartPanel(chartIrradiacao);
     }
 
+    public void limparDadosGraficos() {
+        if (serieSaida != null) {
+            serieSaida.clear();
+        }
+        if (serieEntrada != null) {
+            serieEntrada.clear();
+        }
+        if (serieAmbiente != null) {
+            serieAmbiente.clear();
+        }
+        if (serieIrradiacao != null) {
+            serieIrradiacao.clear();
+        }
+    }
+
     // Métodos de criação dos gráficos
     private JFreeChart criarGraficoSaida() {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -48,13 +63,13 @@ public class GraficoTemperatura {
                 "Temperatura de Saída", "Tempo (s)", "Temperatura (°C)", dataset,
                 true, true, false
         );
-                // Configurar o eixo Y para definir um intervalo mínimo
+        // Configurar o eixo Y para definir um intervalo mínimo
         NumberAxis yAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
         yAxis.setAutoRangeIncludesZero(false); // Garante que o zero não seja sempre incluído
         yAxis.setRange(0, 80); // Defina um intervalo adequado, ajuste conforme necessário
 
         return chart;
-        
+
     }
     // Métodos de criação dos gráficos
 
@@ -79,13 +94,12 @@ public class GraficoTemperatura {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(serieEntrada);
 
-        JFreeChart chart =  ChartFactory.createTimeSeriesChart(
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 "Temperatura de Entrada", "Tempo (s)", "Temperatura (°C)", dataset,
                 true, true, false
         );
-        
-                        // Configurar o eixo Y para definir um intervalo mínimo
 
+        // Configurar o eixo Y para definir um intervalo mínimo
         return chart;
     }
 
@@ -93,12 +107,12 @@ public class GraficoTemperatura {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(serieAmbiente);
 
-        JFreeChart chart =  ChartFactory.createTimeSeriesChart(
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 "Temperatura Ambiente", "Tempo (s)", "Temperatura (°C)", dataset,
                 true, true, false
         );
-        
-                        // Configurar o eixo Y para definir um intervalo mínimo
+
+        // Configurar o eixo Y para definir um intervalo mínimo
         NumberAxis yAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
         yAxis.setAutoRangeIncludesZero(false); // Garante que o zero não seja sempre incluído
         yAxis.setRange(0, 80); // Defina um intervalo adequado, ajuste conforme necessário

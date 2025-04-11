@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Scanner;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.Hour;
 import org.jfree.data.time.Minute;
 
 public class GraficoTemperatura {
@@ -20,6 +22,8 @@ public class GraficoTemperatura {
     private ChartPanel panelSaida, panelEntrada, panelAmbiente, panelIrradiacao; // Painéis dos gráficos
 
     private int tempoSegundos = 0;
+
+    private boolean usarHoraNoEixoX = false;
 
     public GraficoTemperatura() {
         // Criação das séries
@@ -52,6 +56,30 @@ public class GraficoTemperatura {
         if (serieIrradiacao != null) {
             serieIrradiacao.clear();
         }
+
+    }
+
+    // Define se o eixo X dos gráficos deve ser exibido em horas
+    public void setHora(boolean usarHora) {
+        this.usarHoraNoEixoX = usarHora;
+    }
+
+    // Retorna se o eixo X está configurado para exibir em horas
+    public boolean isHora() {
+        return usarHoraNoEixoX;
+    }
+
+    private String horaOrSegundos() {
+        if (isHora()) {
+            return "Tempo (h)";
+        } else {
+            return "Tempo (s)";
+        }
+    }
+
+    public void atualizarRotuloEixoX(JFreeChart chart) {
+        XYPlot plot = chart.getXYPlot();
+        plot.getDomainAxis().setLabel(horaOrSegundos());
     }
 
     // Métodos de criação dos gráficos
@@ -60,7 +88,7 @@ public class GraficoTemperatura {
         dataset.addSeries(serieSaida);
 
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
-                "Temperatura de Saída", "Tempo (s)", "Temperatura (°C)", dataset,
+                "Temperatura de Saída", horaOrSegundos(), "Temperatura (°C)", dataset,
                 true, true, false
         );
         // Configurar o eixo Y para definir um intervalo mínimo
@@ -137,6 +165,22 @@ public class GraficoTemperatura {
         return panelIrradiacao;
     }
 
+    public JFreeChart getChartSaida() {
+        return panelSaida.getChart();
+    }
+
+    public JFreeChart getChartEntrada() {
+        return panelEntrada.getChart();
+    }
+
+    public JFreeChart getChartAmbiente() {
+        return panelAmbiente.getChart();
+    }
+
+    public JFreeChart getChartIrradiacao() {
+        return panelIrradiacao.getChart();
+    }
+
     public static double round(double value, int places) {
         if (places < 0) {
             throw new IllegalArgumentException();
@@ -147,21 +191,38 @@ public class GraficoTemperatura {
         return bd.doubleValue();
     }
 
-    public void atualizarGrafico(double tempSaida, double tempEntrada, double tempAmbiente, double irradiacao) {
-        // Calcula corretamente os segundos, minutos e horas
+    public void atualizarGrafico(double tempSaida, double tempEntrada, double tempAmbiente, double irradiacao, double tempoAtual) {
+        // Calcula segundos, minutos e horas para o contador interno (se necessário)
         int segundos = tempoSegundos % 60;
         int minutos = (tempoSegundos / 60) % 60;
-        int horas = (tempoSegundos / 3600) % 24; // Considerando um ciclo de 24h
+        int horas = (tempoSegundos / 3600) % 24;
 
-        // Criar o tempo corretamente
-        Second segundo = new Second(segundos, minutos, horas, 1, 1, 2025); // Ajuste o ano se necessário
+        // Cria um objeto Second para o modo padrão
+        Second segundo = new Second(segundos, minutos, horas, 1, 1, 2025); // Ajuste dia/mês/ano conforme necessário
 
-        serieSaida.addOrUpdate(segundo, tempSaida);
-        serieEntrada.addOrUpdate(segundo, tempEntrada);
-        serieAmbiente.addOrUpdate(segundo, tempAmbiente);
-        serieIrradiacao.addOrUpdate(segundo, irradiacao);
+        if (isHora()) {
+            // Converte o tempoAtual (double horas) em um objeto RegularTimePeriod
+            int horasInt = (int) tempoAtual; // Parte inteira (hora cheia)
+            double fracaoHora = tempoAtual - horasInt; // Parte fracionária (0.0 a 0.99)
+            int minutosInt = (int) (fracaoHora * 60); // Converte para minutos (0-59)
 
-        // Incrementa o contador de tempo
+            // Cria um objeto Minute para representar o tempo com precisão de minutos
+            Minute minuto = new Minute(minutosInt, new Hour(horasInt, 1, 1, 2025));
+
+            // Adiciona os dados ao gráfico
+            serieSaida.addOrUpdate(minuto, tempSaida);
+            serieEntrada.addOrUpdate(minuto, tempEntrada);
+            serieAmbiente.addOrUpdate(minuto, tempAmbiente);
+            serieIrradiacao.addOrUpdate(minuto, irradiacao);
+        } else {
+            // Modo padrão (segundos)
+            serieSaida.addOrUpdate(segundo, tempSaida);
+            serieEntrada.addOrUpdate(segundo, tempEntrada);
+            serieAmbiente.addOrUpdate(segundo, tempAmbiente);
+            serieIrradiacao.addOrUpdate(segundo, irradiacao);
+        }
+
+        // Incrementa o contador de tempo (se necessário)
         tempoSegundos++;
 
         // Atualiza os painéis

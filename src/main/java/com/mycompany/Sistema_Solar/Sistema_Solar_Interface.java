@@ -16,7 +16,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private boolean atualizacaoAutomaticaAtiva = false; // Variável de controle
     private Timer timer;
     double temperatura_ambiente = TemperaturaAmbiente.chamarTemperaturaAmbiente();
-    double vazao = 0.048; // Vazão do fluido
+    double vazao = 0.02; // Vazão do fluido
     double t = 0; // Contador de tempo para o gráfico
     private Coletor_solar coletor;
     private GraficoTemperatura grafico;
@@ -114,7 +114,22 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private void iniciarSimulacaoTempoDefinido() {
         pararAtualizacaoAutomatica(); // Para o tempo real
         limparGraficos();
+        //mandaria aqui para mudar o x do grafico para horas
+        grafico.setHora(true);
 
+// Atualiza os gráficos SEM recriá-los
+        grafico.atualizarRotuloEixoX(grafico.getChartSaida());
+        grafico.atualizarRotuloEixoX(grafico.getChartEntrada());
+        grafico.atualizarRotuloEixoX(grafico.getChartAmbiente());
+        grafico.atualizarRotuloEixoX(grafico.getChartIrradiacao());
+
+// Atualiza a interface gráfica
+        temp_saida_graf.revalidate();
+        temp_saida_graf.repaint();
+        temp_ambiente_entrada.revalidate();
+        temp_ambiente_entrada.repaint();
+
+        //exibe a tela de definir dados
         Definir_Dados_Interface definirDados = new Definir_Dados_Interface(this, true);
         definirDados.setVisible(true);
 
@@ -224,6 +239,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         hora_dia = new javax.swing.JSlider();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         temp_ambiente_entrada = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         input_temp_ambiente = new javax.swing.JTextField();
@@ -397,6 +413,9 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\Davil\\OneDrive\\Documentos\\UFSC\\Projeto_coletor\\modelo_coletor_solar\\src\\main\\java\\com\\mycompany\\Sistema_Solar\\relogiosol.png")); // NOI18N
 
+        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel11.setText("Hora solar (h) ");
+
         javax.swing.GroupLayout container_definirhoraLayout = new javax.swing.GroupLayout(container_definirhora);
         container_definirhora.setLayout(container_definirhoraLayout);
         container_definirhoraLayout.setHorizontalGroup(
@@ -409,6 +428,10 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel3)))
                 .addContainerGap())
+            .addGroup(container_definirhoraLayout.createSequentialGroup()
+                .addGap(95, 95, 95)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         container_definirhoraLayout.setVerticalGroup(
             container_definirhoraLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -419,7 +442,9 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addComponent(hora_dia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel11)
+                .addGap(7, 7, 7))
         );
 
         temp_ambiente_entrada.setBackground(new java.awt.Color(255, 255, 255));
@@ -478,7 +503,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         });
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel5.setText("Vazão de Entrada (L/min)");
+        jLabel5.setText("Vazão de Entrada (Kg/s)");
 
         input_vazao.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         input_vazao.setText("0");
@@ -635,7 +660,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         jLabel12.setText("Área (m)");
 
         input_vazao1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        input_vazao1.setText("12");
+        input_vazao1.setText("2");
         input_vazao1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 input_vazao1ActionPerformed(evt);
@@ -806,7 +831,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPaneMain, javax.swing.GroupLayout.PREFERRED_SIZE, 1108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPaneMain, javax.swing.GroupLayout.PREFERRED_SIZE, 1155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -820,45 +845,42 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
      * temperatura.
      */
     private void atualizarTemperaturaSaida(double hora) {
-        if (coletor == null) {
-            coletor = new Coletor_solar(0, 0, 0);
-        }
-        // Cria uma nova instância do coletor solar com os parâmetros atualizados  hora_dia.getValue()
-        Coletor_solar novoColetor = new Coletor_solar(coletor.getIrradiacao(
-                hora),
-                temperatura_ambiente,
-                vazao
-        );
-
-        // Calcula a temperatura de saída com o coletor atualizado
-        double tempSaida = novoColetor.calcularTemperaturaSaida();
-        double irradiacao = 0;
-        if (!atualizacaoAutomaticaAtiva) {
-            irradiacao = coletor.getIrradiacao(tempoAtual);
-        } else {
-            irradiacao = coletor.getIrradiacao(hora_dia.getValue());
-        }
-
-        // Adiciona ruído aleatório à temperatura de entrada
-        Random random = new Random();
-        double ruido = (random.nextDouble() * 1.0) - 0.5; // Ruído entre -0.5 e 0.5
-        temperatura_entrada = coletor.calcularTemperaturaEntrada(tempSaida) + ruido;
-
-        // Atualiza o texto do rótulo da vazão
-        System.out.println("tempSaida: " + tempSaida);
-
-        //arredondamento dos valores antes de enviar para o gráfico
-        tempSaida = Math.round(tempSaida * 100.0) / 100.0;
-        temperatura_entrada = Math.round(temperatura_entrada * 100.0) / 100.0;
-        temperatura_ambiente = Math.round(temperatura_ambiente * 100.0) / 100.0;
-
-        grafico.atualizarGrafico(tempSaida, temperatura_entrada, temperatura_ambiente, irradiacao);
-
-        // Incrementa o contador de tempo e atualiza o gráfico
-        t++;
-        atualizarTabela(tempSaida, irradiacao);
-
+    if (coletor == null) {
+        // Inicializa com valores padrão, só na primeira vez
+        coletor = new Coletor_solar(0, temperatura_ambiente, vazao);
     }
+
+    // Atualiza os parâmetros com os valores atuais
+    double novaIrradiacao = coletor.getIrradiacao(hora);
+    coletor.setIrradiacaoSolar(novaIrradiacao);
+    coletor.setTemperaturaAmbiente(temperatura_ambiente);
+    coletor.setVazao(vazao);
+
+    // Calcula a nova temperatura de saída com o estado atualizado
+    double tempSaida = coletor.calcularTemperaturaSaida();
+
+    // Adiciona ruído à temperatura de entrada (se quiser manter esse efeito)
+    Random random = new Random();
+    double ruido = (random.nextDouble() * 1.0) - 0.5;
+    temperatura_entrada = coletor.getTemperaturaEntrada() + ruido;
+
+    // Atualiza o gráfico
+    temperatura_entrada = Math.round(temperatura_entrada * 100.0) / 100.0;
+    tempSaida = Math.round(tempSaida * 100.0) / 100.0;
+    temperatura_ambiente = Math.round(temperatura_ambiente * 100.0) / 100.0;
+
+    double irradiacao = atualizacaoAutomaticaAtiva
+        ? coletor.getIrradiacao(hora_dia.getValue())
+        : novaIrradiacao;
+
+    grafico.atualizarGrafico(tempSaida, temperatura_entrada, temperatura_ambiente, irradiacao, tempoAtual);
+    if (!atualizacaoAutomaticaAtiva) {
+        hora_dia.setValue((int) Math.round(tempoAtual));
+    }
+
+    t++;
+    atualizarTabela(tempSaida, irradiacao);
+}
 
     //private double retornaTempoIrradiacao(boolean tempo_e){;
     //}
@@ -870,14 +892,20 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
      * @param evt Evento gerado ao clicar no botão.
      */
     private void button_diminuir_vazaoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_diminuir_vazaoinActionPerformed
-        vazao = vazao - 0.01;
+        vazao = vazao - 0.003;
         if (vazao <= 0) {
             vazao = 0.001;
         }
         vazao = Math.round(vazao * 1000.0) / 1000.0;
 
         input_vazao.setText(Double.toString(vazao));
-        atualizarTemperaturaSaida(hora_dia.getValue());
+
+        if (!atualizacaoAutomaticaAtiva) {
+            atualizarTemperaturaSaida(tempoAtual);
+        } else {
+            atualizarTemperaturaSaida(hora_dia.getValue());
+        }
+
     }//GEN-LAST:event_button_diminuir_vazaoinActionPerformed
     /**
      * Método acionado ao clicar no botão para aumentar a vazão. Incrementa o
@@ -888,14 +916,19 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
      */
     private void button_aumentar_vazaoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_aumentar_vazaoinActionPerformed
         // TODO add your handling code here:
-        vazao = vazao + 0.01;
+        vazao = vazao + 0.003;
         if (vazao < 0) {
             vazao = 0;
         }
         vazao = Math.round(vazao * 1000.0) / 1000.0;
 
         input_vazao.setText(Double.toString(vazao));
-        atualizarTemperaturaSaida(hora_dia.getValue());
+        if (!atualizacaoAutomaticaAtiva) {
+            atualizarTemperaturaSaida(tempoAtual);
+        } else {
+            atualizarTemperaturaSaida(hora_dia.getValue());
+        }
+
     }//GEN-LAST:event_button_aumentar_vazaoinActionPerformed
     /**
      * Método acionado ao clicar no botão para diminuir a temperatura ambiente.
@@ -908,7 +941,12 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         // TODO add your handling code here:
         temperatura_ambiente = temperatura_ambiente - 1;
         input_temp_ambiente.setText(Double.toString(temperatura_ambiente));
-        atualizarTemperaturaSaida(hora_dia.getValue());
+        if (!atualizacaoAutomaticaAtiva) {
+            atualizarTemperaturaSaida(tempoAtual);
+        } else {
+            atualizarTemperaturaSaida(hora_dia.getValue());
+        }
+
     }//GEN-LAST:event_button_diminuir_temperatura_ambienteActionPerformed
     /**
      * Método acionado ao clicar no botão para aumentar a temperatura ambiente.
@@ -921,7 +959,12 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         // TODO add your handling code here:
         temperatura_ambiente = temperatura_ambiente + 1;
         input_temp_ambiente.setText(Double.toString(temperatura_ambiente));
-        atualizarTemperaturaSaida(hora_dia.getValue());
+        if (!atualizacaoAutomaticaAtiva) {
+            atualizarTemperaturaSaida(tempoAtual);
+        } else {
+            atualizarTemperaturaSaida(hora_dia.getValue());
+        }
+
     }//GEN-LAST:event_button_aumentar_temperatura_ambienteActionPerformed
 
     private void input_vazaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazaoActionPerformed
@@ -1042,6 +1085,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;

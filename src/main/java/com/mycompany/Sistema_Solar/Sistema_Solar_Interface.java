@@ -112,24 +112,24 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     }
 
     private void iniciarSimulacaoTempoDefinido() {
-        pararAtualizacaoAutomatica(); // Para o tempo real
+        pararAtualizacaoAutomatica(); // Para o modo tempo real
         limparGraficos();
-        //mandaria aqui para mudar o x do grafico para horas
-        grafico.setHora(true);
 
-// Atualiza os gráficos SEM recriá-los
+        grafico.setHora(true); // Muda o eixo X para horas
+
+        // Atualiza os rótulos dos eixos
         grafico.atualizarRotuloEixoX(grafico.getChartSaida());
         grafico.atualizarRotuloEixoX(grafico.getChartEntrada());
         grafico.atualizarRotuloEixoX(grafico.getChartAmbiente());
         grafico.atualizarRotuloEixoX(grafico.getChartIrradiacao());
 
-// Atualiza a interface gráfica
+        // Atualiza a interface
         temp_saida_graf.revalidate();
         temp_saida_graf.repaint();
         temp_ambiente_entrada.revalidate();
         temp_ambiente_entrada.repaint();
 
-        //exibe a tela de definir dados
+        // Abre a interface de definição dos dados
         Definir_Dados_Interface definirDados = new Definir_Dados_Interface(this, true);
         definirDados.setVisible(true);
 
@@ -141,28 +141,25 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
             return;
         }
 
-        double intervaloMinutos = 10; // Passo da simulação (ex: 10 min)
-        tempoAtual = horaInicial; // Usando um array mutável
+        double intervaloMinutos = 10; // Passo da simulação (10 min)
+        tempoAtual = horaInicial;
 
-// Criando uma thread para rodar a simulação sem travar a interface
-        new Thread(() -> {
-            while (tempoAtual <= horaFinal) {
-                System.out.println("Simulando para horário: " + tempoAtual);
+        // Loop direto, sem pausas
+        while (tempoAtual <= horaFinal) {
+            System.out.println("Simulando para horário: " + tempoAtual);
 
-                // Atualiza a interface com os novos valores
-                atualizarTemperaturaSaida(tempoAtual);
+            // Atualiza os gráficos com os dados simulados para este horário
+            atualizarTemperaturaSaida(tempoAtual);
 
-                // Espera um pouco antes de passar para o próximo intervalo
-                try {
-                    Thread.sleep(500); // Pausa curta para a interface atualizar
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            // Avança o tempo
+            tempoAtual += intervaloMinutos / 60.0;
+        }
 
-                // Avança o tempo simulado
-                tempoAtual += intervaloMinutos / 60.0;
-            }
-        }).start(); // Inicia a Thread
+        // Atualiza a interface depois que todo o gráfico foi plotado
+        temp_saida_graf.revalidate();
+        temp_saida_graf.repaint();
+        temp_ambiente_entrada.revalidate();
+        temp_ambiente_entrada.repaint();
     }
 
     /**
@@ -175,6 +172,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         if (atualizacaoAutomaticaAtiva) {
             return; // Se já estiver rodando, não cria outro timer
         }
+
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -202,6 +200,27 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
 
     }
 
+    private void resetarAplicacao() {
+        pararAtualizacaoAutomatica();  // Para qualquer timer ativo
+        limparGraficos();               // Limpa os gráficos
+
+        grafico.setHora(false);         // Volta o eixo X para tempo real (não horas)
+
+        // Atualiza os rótulos dos eixos
+        grafico.atualizarRotuloEixoX(grafico.getChartSaida());
+        grafico.atualizarRotuloEixoX(grafico.getChartEntrada());
+        grafico.atualizarRotuloEixoX(grafico.getChartAmbiente());
+        grafico.atualizarRotuloEixoX(grafico.getChartIrradiacao());
+
+        // Atualiza os painéis de gráfico
+        temp_saida_graf.revalidate();
+        temp_saida_graf.repaint();
+        temp_ambiente_entrada.revalidate();
+        temp_ambiente_entrada.repaint();
+
+        // Se tiver campos de entrada, sliders ou valores na interface, pode resetá-los aqui, se fizer sentido
+    }
+
     // M
     /**
      * This method is called from within the constructor to initialize the form.
@@ -222,18 +241,6 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         input_vazao2 = new javax.swing.JTextField();
         jScrollPaneMain = new javax.swing.JScrollPane();
         container_filho = new javax.swing.JPanel();
-        container_tabela = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        value_vazao = new javax.swing.JLabel();
-        value_irradiacao = new javax.swing.JLabel();
-        value_temp_ambiente = new javax.swing.JLabel();
-        value_temp_saida = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        value_temp_entrada = new javax.swing.JLabel();
-        button_importar_dados = new javax.swing.JToggleButton();
         temp_saida_graf = new javax.swing.JPanel();
         container_definirhora = new javax.swing.JPanel();
         hora_dia = new javax.swing.JSlider();
@@ -255,17 +262,18 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         botao_definir_tempo = new javax.swing.JRadioButton();
         jLabel10 = new javax.swing.JLabel();
         botao_tipo_simulacao = new javax.swing.JToggleButton();
-        jPanel1 = new javax.swing.JPanel();
-        tipo_dia_sol = new javax.swing.JRadioButton();
-        tipo_dia_nublado = new javax.swing.JRadioButton();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel12 = new javax.swing.JLabel();
-        input_vazao1 = new javax.swing.JTextField();
-        jLabel15 = new javax.swing.JLabel();
-        input_vazao3 = new javax.swing.JTextField();
-        jLabel16 = new javax.swing.JLabel();
-        input_vazao4 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        container_tabela = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        value_vazao = new javax.swing.JLabel();
+        value_irradiacao = new javax.swing.JLabel();
+        value_temp_ambiente = new javax.swing.JLabel();
+        value_temp_saida = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        value_temp_entrada = new javax.swing.JLabel();
+        button_importar_dados = new javax.swing.JToggleButton();
 
         jScrollPane1.setViewportView(jEditorPane1);
 
@@ -298,90 +306,6 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         container_filho.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         container_filho.setName(""); // NOI18N
 
-        container_tabela.setBackground(new java.awt.Color(255, 255, 255));
-        container_tabela.setBorder(javax.swing.BorderFactory.createTitledBorder("Dados"));
-
-        jLabel2.setText("Vazão");
-
-        jLabel7.setText("Irradiância");
-
-        jLabel8.setText("Temperatura Ambiente");
-
-        jLabel9.setText("Temperatura de saída");
-
-        value_vazao.setText("0");
-
-        value_irradiacao.setText("0");
-
-        value_temp_ambiente.setText("0");
-
-        value_temp_saida.setText("0");
-
-        jLabel14.setText("Temperatura de entrada");
-
-        value_temp_entrada.setText("0");
-
-        button_importar_dados.setText("Importar Dados Reais");
-        button_importar_dados.setToolTipText("");
-        button_importar_dados.setAlignmentX(0.5F);
-        button_importar_dados.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_importar_dadosActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout container_tabelaLayout = new javax.swing.GroupLayout(container_tabela);
-        container_tabela.setLayout(container_tabelaLayout);
-        container_tabelaLayout.setHorizontalGroup(
-            container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(container_tabelaLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button_importar_dados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(container_tabelaLayout.createSequentialGroup()
-                        .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(value_irradiacao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(value_temp_saida, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(value_temp_ambiente, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(value_vazao, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
-                            .addComponent(value_temp_entrada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(20, 20, 20))
-        );
-        container_tabelaLayout.setVerticalGroup(
-            container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(container_tabelaLayout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(value_vazao))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(value_irradiacao))
-                .addGap(18, 18, 18)
-                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(value_temp_ambiente))
-                .addGap(18, 18, 18)
-                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(value_temp_saida))
-                .addGap(18, 18, 18)
-                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel14)
-                    .addComponent(value_temp_entrada))
-                .addGap(15, 15, 15)
-                .addComponent(button_importar_dados, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
-        );
-
         temp_saida_graf.setBackground(new java.awt.Color(255, 255, 255));
         temp_saida_graf.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED, java.awt.Color.lightGray, java.awt.Color.lightGray, java.awt.Color.gray, java.awt.Color.gray));
 
@@ -393,7 +317,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         );
         temp_saida_grafLayout.setVerticalGroup(
             temp_saida_grafLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 207, Short.MAX_VALUE)
+            .addGap(0, 321, Short.MAX_VALUE)
         );
 
         container_definirhora.setBackground(new java.awt.Color(255, 255, 255));
@@ -458,7 +382,7 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         );
         temp_ambiente_entradaLayout.setVerticalGroup(
             temp_ambiente_entradaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 207, Short.MAX_VALUE)
+            .addGap(0, 252, Short.MAX_VALUE)
         );
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -614,124 +538,88 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                 .addGap(18, 18, 18))
         );
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        container_tabela.setBackground(new java.awt.Color(255, 255, 255));
+        container_tabela.setBorder(javax.swing.BorderFactory.createTitledBorder("Dados"));
 
-        tipo_dia.add(tipo_dia_sol);
-        tipo_dia_sol.setSelected(true);
-        tipo_dia_sol.setText("Dia ensolarado");
-        tipo_dia_sol.addActionListener(new java.awt.event.ActionListener() {
+        jLabel2.setText("Vazão");
+
+        jLabel7.setText("Irradiância");
+
+        jLabel8.setText("Temperatura Ambiente");
+
+        jLabel9.setText("Temperatura de saída");
+
+        value_vazao.setText("0");
+
+        value_irradiacao.setText("0");
+
+        value_temp_ambiente.setText("0");
+
+        value_temp_saida.setText("0");
+
+        jLabel14.setText("Temperatura de entrada");
+
+        value_temp_entrada.setText("0");
+
+        button_importar_dados.setText("Importar Dados Reais");
+        button_importar_dados.setToolTipText("");
+        button_importar_dados.setAlignmentX(0.5F);
+        button_importar_dados.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tipo_dia_solActionPerformed(evt);
+                button_importar_dadosActionPerformed(evt);
             }
         });
 
-        tipo_dia.add(tipo_dia_nublado);
-        tipo_dia_nublado.setText("Dia Nublado");
-        tipo_dia_nublado.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tipo_dia_nubladoActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(tipo_dia_sol, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        javax.swing.GroupLayout container_tabelaLayout = new javax.swing.GroupLayout(container_tabela);
+        container_tabela.setLayout(container_tabelaLayout);
+        container_tabelaLayout.setHorizontalGroup(
+            container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(container_tabelaLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(button_importar_dados, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, container_tabelaLayout.createSequentialGroup()
+                        .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(value_irradiacao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(value_temp_saida, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(value_temp_ambiente, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(value_vazao, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
+                            .addComponent(value_temp_entrada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addGap(24, 24, 24))
+        );
+        container_tabelaLayout.setVerticalGroup(
+            container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(container_tabelaLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(tipo_dia_nublado, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tipo_dia_sol)
-                    .addComponent(tipo_dia_nublado))
-                .addContainerGap(10, Short.MAX_VALUE))
-        );
-
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Dados do Coletor"));
-
-        jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel12.setText("Área (m)");
-
-        input_vazao1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        input_vazao1.setText("2");
-        input_vazao1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                input_vazao1ActionPerformed(evt);
-            }
-        });
-
-        jLabel15.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel15.setText("Constante a");
-
-        input_vazao3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        input_vazao3.setText("0");
-        input_vazao3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                input_vazao3ActionPerformed(evt);
-            }
-        });
-
-        jLabel16.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel16.setText("Constante b");
-
-        input_vazao4.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        input_vazao4.setText("0");
-        input_vazao4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                input_vazao4ActionPerformed(evt);
-            }
-        });
-
-        jButton1.setText("CONFIRMAR");
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(input_vazao1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(input_vazao3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(input_vazao4, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel12)
-                    .addComponent(input_vazao1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(value_vazao))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel15)
-                    .addComponent(input_vazao3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel16)
-                    .addComponent(input_vazao4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(value_irradiacao))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(value_temp_ambiente))
+                .addGap(18, 18, 18)
+                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(value_temp_saida))
+                .addGap(18, 18, 18)
+                .addGroup(container_tabelaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel14)
+                    .addComponent(value_temp_entrada))
+                .addGap(18, 18, Short.MAX_VALUE)
+                .addComponent(button_importar_dados, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(36, 36, 36))
         );
 
         javax.swing.GroupLayout container_filhoLayout = new javax.swing.GroupLayout(container_filho);
@@ -741,45 +629,44 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
             .addGroup(container_filhoLayout.createSequentialGroup()
                 .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(container_filhoLayout.createSequentialGroup()
-                        .addGap(227, 227, 227)
-                        .addComponent(jLabel1))
-                    .addGroup(container_filhoLayout.createSequentialGroup()
                         .addGap(36, 36, 36)
-                        .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(container_filhoLayout.createSequentialGroup()
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(input_vazao, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(button_diminuir_vazaoin, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(button_aumentar_vazaoin, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(input_temp_ambiente, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(button_aumentar_temperatura_ambiente, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(button_diminuir_temperatura_ambiente, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addComponent(container_definirhora, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(container_tabela, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(36, 36, 36)
+                        .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(container_filhoLayout.createSequentialGroup()
+                                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(input_vazao, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(button_diminuir_vazaoin, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button_aumentar_vazaoin, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createSequentialGroup()
+                                        .addComponent(jLabel6)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(input_temp_ambiente, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(button_aumentar_temperatura_ambiente, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(button_diminuir_temperatura_ambiente, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addComponent(container_definirhora, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(container_tabela, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(37, 37, 37)
                         .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(temp_ambiente_entrada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(temp_saida_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(0, 509, Short.MAX_VALUE))
+                            .addComponent(temp_saida_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(container_filhoLayout.createSequentialGroup()
+                        .addGap(224, 224, 224)
+                        .addComponent(jLabel1)))
+                .addGap(36, 36, 36))
         );
         container_filhoLayout.setVerticalGroup(
             container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, container_filhoLayout.createSequentialGroup()
-                .addGap(0, 55, Short.MAX_VALUE)
+                .addGap(36, 36, 36)
                 .addComponent(jLabel1)
-                .addGap(30, 30, 30)
+                .addGap(36, 36, 36)
                 .addGroup(container_filhoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(container_filhoLayout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -808,16 +695,12 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(container_definirhora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(container_tabela, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(container_tabela, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(container_filhoLayout.createSequentialGroup()
                         .addComponent(temp_ambiente_entrada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(temp_saida_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(191, Short.MAX_VALUE))
+                        .addComponent(temp_saida_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(101, Short.MAX_VALUE))
         );
 
         jScrollPaneMain.setViewportView(container_filho);
@@ -826,12 +709,12 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPaneMain, javax.swing.GroupLayout.DEFAULT_SIZE, 991, Short.MAX_VALUE)
+            .addComponent(jScrollPaneMain, javax.swing.GroupLayout.DEFAULT_SIZE, 1019, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPaneMain, javax.swing.GroupLayout.PREFERRED_SIZE, 1155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPaneMain, javax.swing.GroupLayout.PREFERRED_SIZE, 967, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -845,42 +728,71 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
      * temperatura.
      */
     private void atualizarTemperaturaSaida(double hora) {
-    if (coletor == null) {
-        // Inicializa com valores padrão, só na primeira vez
-        coletor = new Coletor_solar(0, temperatura_ambiente, vazao);
+        if (coletor == null) {
+            // Inicializa com valores padrão, só na primeira vez
+            coletor = new Coletor_solar(0, temperatura_ambiente, vazao);
+        }
+
+        // Atualiza os parâmetros com os valores atuais
+        double novaIrradiacao = coletor.getIrradiacao(hora);
+        coletor.setIrradiacaoSolar(novaIrradiacao);
+        coletor.setTemperaturaAmbiente(temperatura_ambiente);
+        coletor.setVazao(vazao);
+
+        // Calcula a nova temperatura de saída com o estado atualizado
+        double tempSaida = coletor.calcularTemperaturaSaida();
+
+        // Adiciona ruído à temperatura de entrada (se quiser manter esse efeito)
+        Random random = new Random();
+        double ruido = (random.nextDouble() * 1.0) - 0.5;
+        temperatura_entrada = coletor.getTemperaturaEntrada() + ruido;
+
+        // Atualiza o gráfico
+        temperatura_entrada = Math.round(temperatura_entrada * 100.0) / 100.0;
+        tempSaida = Math.round(tempSaida * 100.0) / 100.0;
+        temperatura_ambiente = Math.round(temperatura_ambiente * 100.0) / 100.0;
+
+        double irradiacao = atualizacaoAutomaticaAtiva
+                ? coletor.getIrradiacao(hora_dia.getValue())
+                : novaIrradiacao;
+
+        grafico.atualizarGrafico(tempSaida, temperatura_entrada, temperatura_ambiente, irradiacao, tempoAtual);
+        if (!atualizacaoAutomaticaAtiva) {
+            hora_dia.setValue((int) Math.round(tempoAtual));
+        }
+
+        t++;
+        atualizarTabela(tempSaida, irradiacao);
     }
 
-    // Atualiza os parâmetros com os valores atuais
-    double novaIrradiacao = coletor.getIrradiacao(hora);
-    coletor.setIrradiacaoSolar(novaIrradiacao);
-    coletor.setTemperaturaAmbiente(temperatura_ambiente);
-    coletor.setVazao(vazao);
+    private void input_vazao2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_input_vazao2ActionPerformed
 
-    // Calcula a nova temperatura de saída com o estado atualizado
-    double tempSaida = coletor.calcularTemperaturaSaida();
+    private void button_importar_dadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_importar_dadosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button_importar_dadosActionPerformed
 
-    // Adiciona ruído à temperatura de entrada (se quiser manter esse efeito)
-    Random random = new Random();
-    double ruido = (random.nextDouble() * 1.0) - 0.5;
-    temperatura_entrada = coletor.getTemperaturaEntrada() + ruido;
+    private void botao_tipo_simulacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_tipo_simulacaoActionPerformed
+        // TODO add your handling code here:
+        resetarAplicacao(); // Sempre reseta antes
+        if (botao_definir_tempo.isSelected()) {//button group tipo_simulacao estiver com botao_definir tempo selecionado
+            iniciarSimulacaoTempoDefinido();
+        } else {
+            //refresh na aplicação
+            iniciarAtualizacaoAutomatica();
+        }
+    }//GEN-LAST:event_botao_tipo_simulacaoActionPerformed
 
-    // Atualiza o gráfico
-    temperatura_entrada = Math.round(temperatura_entrada * 100.0) / 100.0;
-    tempSaida = Math.round(tempSaida * 100.0) / 100.0;
-    temperatura_ambiente = Math.round(temperatura_ambiente * 100.0) / 100.0;
+    private void botao_definir_tempoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_definir_tempoActionPerformed
+        // TODO add your handling code here:
+        botao_tipo_simulacao.setEnabled(true);
+    }//GEN-LAST:event_botao_definir_tempoActionPerformed
 
-    double irradiacao = atualizacaoAutomaticaAtiva
-        ? coletor.getIrradiacao(hora_dia.getValue())
-        : novaIrradiacao;
-
-    grafico.atualizarGrafico(tempSaida, temperatura_entrada, temperatura_ambiente, irradiacao, tempoAtual);
-    if (!atualizacaoAutomaticaAtiva) {
-        hora_dia.setValue((int) Math.round(tempoAtual));
-    }
-
-    t++;
-    atualizarTabela(tempSaida, irradiacao);
-}
+    private void botao_tempo_realActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_tempo_realActionPerformed
+        // TODO add your handling code here:
+        botao_tipo_simulacao.setEnabled(true);
+    }//GEN-LAST:event_botao_tempo_realActionPerformed
 
     //private double retornaTempoIrradiacao(boolean tempo_e){;
     //}
@@ -905,8 +817,8 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         } else {
             atualizarTemperaturaSaida(hora_dia.getValue());
         }
-
     }//GEN-LAST:event_button_diminuir_vazaoinActionPerformed
+
     /**
      * Método acionado ao clicar no botão para aumentar a vazão. Incrementa o
      * valor da vazão em 0.01, garantindo que ela não fique abaixo de 0.
@@ -928,8 +840,12 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         } else {
             atualizarTemperaturaSaida(hora_dia.getValue());
         }
-
     }//GEN-LAST:event_button_aumentar_vazaoinActionPerformed
+
+    private void input_vazaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazaoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_input_vazaoActionPerformed
+
     /**
      * Método acionado ao clicar no botão para diminuir a temperatura ambiente.
      * Reduz o valor da temperatura ambiente em 1 grau Celsius. Atualiza a
@@ -946,8 +862,8 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         } else {
             atualizarTemperaturaSaida(hora_dia.getValue());
         }
-
     }//GEN-LAST:event_button_diminuir_temperatura_ambienteActionPerformed
+
     /**
      * Método acionado ao clicar no botão para aumentar a temperatura ambiente.
      * Incrementa o valor da temperatura ambiente em 1 grau Celsius. Atualiza a
@@ -964,68 +880,11 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
         } else {
             atualizarTemperaturaSaida(hora_dia.getValue());
         }
-
     }//GEN-LAST:event_button_aumentar_temperatura_ambienteActionPerformed
-
-    private void input_vazaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazaoActionPerformed
-        // TODO add your handling code here:
-
-
-    }//GEN-LAST:event_input_vazaoActionPerformed
 
     private void input_temp_ambienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_temp_ambienteActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_input_temp_ambienteActionPerformed
-
-    private void button_importar_dadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_importar_dadosActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_button_importar_dadosActionPerformed
-
-    private void tipo_dia_nubladoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tipo_dia_nubladoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tipo_dia_nubladoActionPerformed
-
-    private void tipo_dia_solActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tipo_dia_solActionPerformed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_tipo_dia_solActionPerformed
-
-    private void botao_tempo_realActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_tempo_realActionPerformed
-        // TODO add your handling code here:
-        botao_tipo_simulacao.setEnabled(true);
-    }//GEN-LAST:event_botao_tempo_realActionPerformed
-
-    private void botao_definir_tempoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_definir_tempoActionPerformed
-        // TODO add your handling code here:
-        botao_tipo_simulacao.setEnabled(true);
-    }//GEN-LAST:event_botao_definir_tempoActionPerformed
-
-    private void botao_tipo_simulacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_tipo_simulacaoActionPerformed
-        // TODO add your handling code here:
-        if (botao_definir_tempo.isSelected()) {//button group tipo_simulacao estiver com botao_definir tempo selecionado
-            iniciarSimulacaoTempoDefinido();
-        } else {
-            //refresh na aplicação
-            iniciarAtualizacaoAutomatica();
-        }
-
-    }//GEN-LAST:event_botao_tipo_simulacaoActionPerformed
-
-    private void input_vazao1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_input_vazao1ActionPerformed
-
-    private void input_vazao2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_input_vazao2ActionPerformed
-
-    private void input_vazao3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_input_vazao3ActionPerformed
-
-    private void input_vazao4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_input_vazao4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_input_vazao4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1077,20 +936,13 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private javax.swing.JSlider hora_dia;
     private javax.swing.JTextField input_temp_ambiente;
     private javax.swing.JTextField input_vazao;
-    private javax.swing.JTextField input_vazao1;
     private javax.swing.JTextField input_vazao2;
-    private javax.swing.JTextField input_vazao3;
-    private javax.swing.JTextField input_vazao4;
-    private javax.swing.JButton jButton1;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1099,16 +951,12 @@ public class Sistema_Solar_Interface extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPaneMain;
     private javax.swing.JPanel temp_ambiente_entrada;
     private javax.swing.JPanel temp_saida_graf;
     private javax.swing.ButtonGroup tipo_dia;
-    private javax.swing.JRadioButton tipo_dia_nublado;
-    private javax.swing.JRadioButton tipo_dia_sol;
     private javax.swing.ButtonGroup tipo_simulacao;
     private javax.swing.JLabel value_irradiacao;
     private javax.swing.JLabel value_temp_ambiente;

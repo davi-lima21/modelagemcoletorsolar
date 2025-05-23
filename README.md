@@ -1,37 +1,53 @@
-# Modelagem Coletor Solar
+# Modelagem Coletor Solar - Malha Aberta
 
-Este projeto é uma aplicação desenvolvida em **Java** para a **simulação do processo de um coletor solar**. O sistema permite a análise dos dados de entrada e saída, fornecendo flexibilidade na configuração dos parâmetros.
+Este projeto é uma aplicação desenvolvida em **Java** para a **simulação do processo de um coletor solar em malha aberta**, ou seja, **sem aplicação de controle automático**. O objetivo é analisar o comportamento da temperatura de saída em função das variáveis de entrada.
 
-## Funcionalidades
+## 🎯 Objetivo
 
-- **Definição dos dados de entrada**: O usuário pode configurar os valores iniciais, incluindo constantes do sistema.
-- **Execução em tempo real ou em lote**: A simulação pode ser executada continuamente ou para um período pré-determinado.
-- **Importação de dados**: Possibilidade de carregar dados de entrada externos.
-- **Uso de dados do sistema**: O software pode utilizar valores padrão do próprio sistema.
+Realizar simulações do coletor solar, observando como os parâmetros de entrada afetam a temperatura de saída, sem intervenção de controle automático. Este projeto serve como base para estudos e desenvolvimento futuro de sistemas de controle.
 
-## Tecnologias Utilizadas
+## 🔥 Funcionalidades
 
-- **Linguagem**: Java
-- **IDE**: NetBeans
-- **Gerenciador de Dependências**: Maven
-- **Bibliotecas**:
-  - **GUI Forms** (para interface gráfica)
-  - **JFreeChart** (para geração de gráficos)
+- ✅ Definição dos dados de entrada:
+  - Irradiância solar
+  - Temperatura ambiente
+  - Vazão do fluido
+  - Parâmetros físicos do coletor (área, eficiência, massa, etc.)
+- ✅ Execução em tempo real ou por tempo definido
+- ✅ Análise do comportamento da temperatura de saída
+- ✅ Visualização por gráficos e tabelas
+- ✅ Importação de dados externos para simulação
 
-## Como Executar
+## 🛠️ Tecnologias Utilizadas
+
+- **Linguagem:** Java
+- **IDE:** NetBeans
+- **Gerenciador de Dependências:** Maven
+- **Bibliotecas:**
+  - GUI Forms (para a interface gráfica)
+  - JFreeChart (para geração de gráficos)
+
+## 🚀 Como Executar
 
 1. Clone este repositório:
    ```sh
-   git clone https://github.com/davi-lima21/modelagemcoletorsolar.git
-   ```
+   git clone git@github.com:davi-lima21/modelagemcoletorsolar.git
 2. Abra o projeto no NetBeans.
-3. Certifique-se de que o Maven está configurado corretamente.
-4. Compile e execute o código.
 
-## Contribuição
+3. Verifique se o Maven está configurado corretamente.
 
-Sinta-se à vontade para contribuir com melhorias e sugestões!
+4. Compile e execute o projeto.
+
+## ⚙️ Projetos Relacionados
+
+    > ✅ Este projeto é focado na malha aberta (sem controle).
+
+    > 🔜 As versões com controle P, PI e PID (malha fechada) estarão disponíveis em outros repositórios específicos.
+
+## 🤝 Contribuição
+
+Sugestões, melhorias e contribuições são muito bem-vindas!
 
 ---
-
 _Desenvolvido por Davi de Lima Rosa_
+---

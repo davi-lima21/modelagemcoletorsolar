@@ -1,6 +1,6 @@
-# Modelagem Coletor Solar - Malha Aberta
+# Modelagem Coletor Solar - Modelo Físico
 
-Este projeto é uma aplicação desenvolvida em **Java** para a **simulação do processo de um coletor solar em malha aberta**, ou seja, **sem aplicação de controle automático**. O objetivo é analisar o comportamento da temperatura de saída em função das variáveis de entrada.
+Este projeto consiste na simulação do comportamento físico de um coletor solar, desenvolvido em **Java**, modelando as relações entre as variáveis de entrada (como irradiância solar, temperatura ambiente e vazão) e as variáveis de saída (como temperatura do fluido).
 
 ## 🎯 Objetivo
 
@@ -40,7 +40,7 @@ Realizar simulações do coletor solar, observando como os parâmetros de entrad
 
 ## ⚙️ Projetos Relacionados
 
-    > ✅ Este projeto é focado na malha aberta (sem controle).
+    > ✅ Este projeto é focado no modeo físico do coletor solar (sem controle).
 
     > 🔜 As versões com controle P, PI e PID (malha fechada) estarão disponíveis em outros repositórios específicos.
 
